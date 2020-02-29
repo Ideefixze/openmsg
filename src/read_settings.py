@@ -23,7 +23,7 @@ def load_settings(filename):
     while(settings_file.readable):
         line = settings_file.readline()
         line=line.replace('\n','')
-        setting=line.split('=',1)
+        setting=line.split('=',1) 
 
         if(setting[0]==''):
             break
