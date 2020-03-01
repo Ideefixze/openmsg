@@ -1,0 +1,16 @@
+MainWindow{
+background-color:#3a3a3a;
+}
+
+QPushButton{
+background-color:#4e4e4e;
+color: #ffffff;
+font-size: 18px;
+}
+
+QTextBrowser{
+background-color:#303030;
+color: #ffffff;
+border-radius: 10px 10px 10px 10px;
+border: 4px solid #000000;
+}
