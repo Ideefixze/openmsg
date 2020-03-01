@@ -47,7 +47,7 @@ class MessageTaker(QtCore.QThread):
             data = self.client.recv(4096)
             if not data: break
             from_client = data.decode()
-            print (from_client)
+            #print (from_client)
         print ("DC")
 
 
@@ -73,8 +73,8 @@ class Server(QtCore.QThread):
             clientsock, address = self.server.accept()
             print(address[0]+" connected!")
             #this goes to new thread
-            self.messageTakers.append(MessageTaker(self.server, clientsock))
-            self.messageTakers[-1].start()
+            #self.messageTakers.append(MessageTaker(self.server, clientsock))
+            #self.messageTakers[-1].start()
             #MessageTaker(self.server, clientsock).start()
             
 
