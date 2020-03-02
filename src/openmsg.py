@@ -7,84 +7,111 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabe
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
-app_version = "0.0.1"
+app_version = "0.0.2"
 
-def print_thread (name, delay):
-    count = 0
-    while count < 10:
-        time.sleep(delay)
-        count += 1
-        print (name+": "+time.ctime(time.time()))
-
-
-class Client(QtCore.QThread):
-    def __init__(self):
-        QtCore.QThread.__init__(self)
+class Client:
+    def __init__(self, UIBox):
         self.messageToSend=""
+        self.logScreen = UIBox
 
-    def run(self):
-        
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print("Joining: "+rs.settings["ip"]+":"+rs.settings["port"])
         try:
-            client.connect((rs.settings["ip"], int(rs.settings["port"])))
+            self.sock.connect((rs.settings["ip"], int(rs.settings["port"])))
         except:
             print("Couldn't join server: "+rs.settings["ip"]+":"+rs.settings["port"])
+            return
 
+        tspeak = threading.Thread(target=self.Speak)
+        thear = threading.Thread(target=self.Hear)
+
+        tspeak.daemon = True
+        thear.daemon = True
+
+        tspeak.start()
+        thear.start() 
+
+    def Speak(self):
         while(True):
             if(self.messageToSend!=""):
                 byt = str.encode(self.messageToSend)
-                client.send(byt)
-                self.messageToSend=""
-
-
-class MessageTaker(QtCore.QThread):
-    def __init__(self, clientsock):
-        QtCore.QThread.__init__(self)
-        self.client = clientsock
+                try:
+                    self.sock.send(byt)
+                    self.messageToSend=""
+                except:
+                    print("No connection!")
+                    break
     
-    def run(self):
-        while True:
-            data = self.client.recv(4096)
-            if not data: break
-            from_client = data.decode()
-            #print (from_client)
-        print ("DC")
+    def Hear(self):
+        while(True):
+            message = self.sock.recv(4096).decode()
+            if(message!=""):
+                print(message)
+                
+            #self.logScreen.setPlainText(self.logScreen.toPlainText()+"\n"+message)
 
 
-class Server(QtCore.QThread):
+class Server():
+
     def __init__(self):
-        QtCore.QThread.__init__(self)
-
-
-    def run(self):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.messageTakers = list()
-
+        self.client_list = []
         print("Creating server on: "+rs.settings["ip"]+":"+rs.settings["port"])
+
         try:
             self.server.bind((rs.settings["ip"], int(rs.settings["port"])))
-            self.server.listen(5)
+            self.server.listen(10)
         except:
             print("Error: failed to create server. IP or port is invalid.")
-        
-        print("Server created!")
+            return
 
+        print("Server created!")
+        self.acceptthread = threading.Thread(target=self.AcceptClients)
+        self.acceptthread.daemon = True
+        self.acceptthread.start()
+    
+    def AcceptClients(self):
         while(True):
+
+            print("(Server): Waiting for a new client...  currently there are: "+str(len(self.client_list))+" guests.")
             clientsock, address = self.server.accept()
-            print(address[0]+" connected!")
-            #this goes to new thread
-            #self.messageTakers.append(MessageTaker(self.server, clientsock))
-            #self.messageTakers[-1].start()
-            #MessageTaker(self.server, clientsock).start()
+            print("(Server): "+address[0]+" connected!")
+            
+            self.client_list.append(clientsock)
+            self.Broadcast("(Server): Hello "+address[0]+"!")
+            t = threading.Thread(target=self.ClientThread,args=(clientsock,))
+            t.daemon = True
+            t.start()
+
+    def RemoveClient(self, c):
+        if c in self.client_list:
+            self.client_list.remove(c)
+
+    def ClientThread(self, client):
+        while(True):
+            data = client.recv(4096)
+
+            if not data: 
+                self.RemoveClient(client)
+                break
+            from_client = data.decode()
+            message = (str(client.getsockname()[0])+": "+from_client)
+            self.Broadcast(message)
+
+    def Broadcast(self, message):
+        for client in self.client_list:
+            try:
+                client.send(message.encode())
+            except:
+                client.close()
+                self.RemoveClient(client)
             
 
 class ChatWidget(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.client = Client()
         
-
         self.msgBox = QTextBrowser(self)
         self.msgBox.setGeometry(0, 0, 400, 350)
         self.sendBox = QTextEdit(self)
@@ -95,9 +122,9 @@ class ChatWidget(QWidget):
 
         parent.addWidget(self)
 
-
     def JoinServer(self):
-        self.client.start()
+        self.client = Client(self.msgBox)
+        
 
     def SendMsg(self, event):
         messageText = self.sendBox.toPlainText()
@@ -110,8 +137,6 @@ class MainWindow(QStackedWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.server = Server()
-        
 
         self.setFixedSize(400, 400)
         self.setWindowTitle("OpenMSG "+app_version)
@@ -130,7 +155,7 @@ class MainWindow(QStackedWidget):
         b3.setGeometry(0, 350, 400, 50)
 
         b1.mouseReleaseEvent = self.JoinServer
-        b2.mouseReleaseEvent = self.HostAndJoinServer
+        b2.mouseReleaseEvent = self.Host
         b3.mouseReleaseEvent = self.ExitApp
 
         self.chatWidget = ChatWidget(self)
@@ -144,7 +169,6 @@ class MainWindow(QStackedWidget):
 
     def showChatGUI(self):
         self.setCurrentIndex(1)
-        self.chatWidget.JoinServer()
 
     def setMotive(self, stylesheet):
         self.styleSheet = stylesheet
@@ -155,15 +179,12 @@ class MainWindow(QStackedWidget):
         sys.exit()
     
     def JoinServer(self, event):
+        self.chatWidget.JoinServer()
         self.showChatGUI()
         
+    def Host(self, event):
+        self.server = Server()
     
-    def HostAndJoinServer(self, event):
-        self.server.start()
-        self.showChatGUI()
-        
-
-
 
 if __name__=='__main__':
     rs.load_settings(r"server.txt")
@@ -173,15 +194,4 @@ if __name__=='__main__':
     window = MainWindow()
     window.setMotive(rs.stylesheet)
     sys.exit(app.exec_())
-
-'''
-try:
-    print ("Starting threads...")
-    t1 = threading.Thread(target=print_thread,args=("A", 0.1)) 
-    t2 = threading.Thread(target=print_thread,args=("B", 0.15))
-    t1.start();
-    t2.start();
-except:
-    print ("Error: can't start threads")
-    '''
 
