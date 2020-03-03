@@ -3,13 +3,18 @@ import sys
 import threading
 import time
 import read_settings as rs
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QStackedWidget, QTextBrowser, QTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QAbstractScrollArea, QStackedWidget, QTextBrowser, QTextEdit
 from PyQt5 import QtCore
 from PyQt5 import QtGui
+from PyQt5.QtCore import pyqtSignal
 
 app_version = "0.0.2"
 
+#Hears and sends data through socket to the server
 class Client:
+
+    #hearSignal = pyqtSignal(str)
+
     def __init__(self, UIBox):
         self.messageToSend=""
         self.logScreen = UIBox
@@ -21,6 +26,19 @@ class Client:
         except:
             print("Couldn't join server: "+rs.settings["ip"]+":"+rs.settings["port"])
             return
+
+        #self.hearSignal.connect(self.AppendMessage)
+
+        #Load saved logs of this server
+        try:
+            file = open(rs.current_file_dir+"\\server_log.txt",'r+')
+        except:
+            file = open(rs.current_exe_dir+"\\server_log.txt",'r+')
+        text = ''.join(file.readlines())
+
+        self.logScreen.insertPlainText(text)
+        self.logScreen.verticalScrollBar().setValue(self.logScreen.verticalScrollBar().maximum())
+        file.close()
 
         tspeak = threading.Thread(target=self.Speak)
         thear = threading.Thread(target=self.Hear)
@@ -41,16 +59,28 @@ class Client:
                 except:
                     print("No connection!")
                     break
+
     
     def Hear(self):
+        
+        #self.hearSignal.emit(text)
+        try:
+            file = open(rs.current_file_dir+"\\server_log.txt",'a+')
+        except:
+            file = open(rs.current_exe_dir+"\\server_log.txt",'a+')
+
+        #Keeps loading new messages
         while(True):
             message = self.sock.recv(4096).decode()
             if(message!=""):
-                print(message)
-                
-            #self.logScreen.setPlainText(self.logScreen.toPlainText()+"\n"+message)
+                #print(message)
+                message=message+"\n"
+                file.write(message)
+                self.logScreen.insertPlainText(message)
+                #self.hearSignal.emit(text)    
+        file.close()
 
-
+#Simple class that manages connected clients
 class Server():
 
     def __init__(self):
@@ -89,7 +119,10 @@ class Server():
 
     def ClientThread(self, client):
         while(True):
-            data = client.recv(4096)
+            try:
+                data = client.recv(4096)
+            except:
+                data = None
 
             if not data: 
                 self.RemoveClient(client)
@@ -105,7 +138,7 @@ class Server():
             except:
                 client.close()
                 self.RemoveClient(client)
-            
+                 
 
 class ChatWidget(QWidget):
 
@@ -114,6 +147,7 @@ class ChatWidget(QWidget):
         
         self.msgBox = QTextBrowser(self)
         self.msgBox.setGeometry(0, 0, 400, 350)
+        
         self.sendBox = QTextEdit(self)
         self.sendBox.setGeometry(0,350,350,50)
         sendButton = QPushButton("Send", self)
@@ -121,6 +155,9 @@ class ChatWidget(QWidget):
         sendButton.setGeometry(350,350,50,50)
 
         parent.addWidget(self)
+
+    def DisplayLogs(self, text):
+        self.msgBox.setText(text)
 
     def JoinServer(self):
         self.client = Client(self.msgBox)

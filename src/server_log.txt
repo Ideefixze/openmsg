@@ -1,0 +1,4 @@
+(Server): Hello 127.0.0.1!
+127.0.0.1: Witam wszystkic
+(Server): Hello 127.0.0.1!
+127.0.0.1: no witam
