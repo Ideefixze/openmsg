@@ -27,7 +27,7 @@ def load_settings(filename):
 
         settings[setting[0]] = setting[1]
 
-    settings_file.close();
+    settings_file.close()
 
     print("Loaded settings from " + filename)
     

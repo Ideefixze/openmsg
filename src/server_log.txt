@@ -1,4 +1,15 @@
 (Server): Hello 127.0.0.1!
-127.0.0.1: Witam wszystkic
+Anonymous is known as JohnDoe.
+JohnDoe(127.0.0.1): Witam
+JohnDoe(127.0.0.1): Zegnam
 (Server): Hello 127.0.0.1!
-127.0.0.1: no witam
+Anonymous is known as Adam.
+JohnDoe(127.0.0.1): Ty kurwo
+Adam(127.0.0.1): Spierdalaj
+(Server): Hello 127.0.0.1!
+Anonymous is known as JohnDoe.
+JohnDoe(127.0.0.1): Co tam?
+(Server): Hello 127.0.0.1!
+Anonymous is known as Adam.
+JohnDoe(127.0.0.1): Ty kurwo
+Adam(127.0.0.1): Spierdalaj

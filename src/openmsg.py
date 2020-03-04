@@ -3,6 +3,7 @@ import sys
 import threading
 import time
 import read_settings as rs
+import command_parser as cp
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QAbstractScrollArea, QStackedWidget, QTextBrowser, QTextEdit
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -11,11 +12,12 @@ from PyQt5.QtCore import pyqtSignal
 app_version = "0.0.2"
 
 #Hears and sends data through socket to the server
-class Client:
+class Client(QtCore.QObject):
 
-    #hearSignal = pyqtSignal(str)
+    hearSignal = pyqtSignal(str)
 
-    def __init__(self, UIBox):
+    def __init__(self,UIBox):
+        super(Client, self).__init__()
         self.messageToSend=""
         self.logScreen = UIBox
 
@@ -27,7 +29,7 @@ class Client:
             print("Couldn't join server: "+rs.settings["ip"]+":"+rs.settings["port"])
             return
 
-        #self.hearSignal.connect(self.AppendMessage)
+        self.hearSignal.connect(self.AppendMessage)
 
         #Load saved logs of this server
         try:
@@ -49,7 +51,17 @@ class Client:
         tspeak.start()
         thear.start() 
 
+    def AppendMessage(self, text):
+        self.logScreen.insertPlainText(text)
+
     def Speak(self):
+        byt = str.encode("/nickname "+rs.settings["nickname"])
+        try:
+            self.sock.send(byt)
+        except:
+            print("No connection!")
+            return
+
         while(True):
             if(self.messageToSend!=""):
                 byt = str.encode(self.messageToSend)
@@ -73,11 +85,9 @@ class Client:
         while(True):
             message = self.sock.recv(4096).decode()
             if(message!=""):
-                #print(message)
                 message=message+"\n"
                 file.write(message)
-                self.logScreen.insertPlainText(message)
-                #self.hearSignal.emit(text)    
+                self.hearSignal.emit(message)    
         file.close()
 
 #Simple class that manages connected clients
@@ -85,7 +95,7 @@ class Server():
 
     def __init__(self):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_list = []
+        self.client_list = [] #tuples of (socket, str nickname)
         print("Creating server on: "+rs.settings["ip"]+":"+rs.settings["port"])
 
         try:
@@ -107,9 +117,9 @@ class Server():
             clientsock, address = self.server.accept()
             print("(Server): "+address[0]+" connected!")
             
-            self.client_list.append(clientsock)
+            self.client_list.append([clientsock,"Anonymous"]) 
             self.Broadcast("(Server): Hello "+address[0]+"!")
-            t = threading.Thread(target=self.ClientThread,args=(clientsock,))
+            t = threading.Thread(target=self.ClientThread,args=(self.client_list[-1],))
             t.daemon = True
             t.start()
 
@@ -120,24 +130,38 @@ class Server():
     def ClientThread(self, client):
         while(True):
             try:
-                data = client.recv(4096)
+                data = client[0].recv(4096)
             except:
                 data = None
 
             if not data: 
                 self.RemoveClient(client)
                 break
+
             from_client = data.decode()
-            message = (str(client.getsockname()[0])+": "+from_client)
-            self.Broadcast(message)
+
+            #check whether it is a command or message
+            if(from_client[0]=='/'):
+                self.ParseCommand(from_client[1:], client)
+            else:
+                message = (client[1]+"("+str(client[0].getsockname()[0])+"): "+from_client)
+                self.Broadcast(message)
 
     def Broadcast(self, message):
         for client in self.client_list:
             try:
-                client.send(message.encode())
+                client[0].send(message.encode())
             except:
-                client.close()
+                client[0].close()
                 self.RemoveClient(client)
+
+    def ParseCommand(self, command, who):
+        task = command.split(' ')
+        print(task)
+        print(task[1:])
+        cp.Parse(task[0],who,task[1:],self)
+                
+
                  
 
 class ChatWidget(QWidget):
@@ -225,6 +249,7 @@ class MainWindow(QStackedWidget):
 
 if __name__=='__main__':
     rs.load_settings(r"server.txt")
+    rs.load_settings(r"user.txt")
     rs.load_stylesheet(r"stylesheet.txt")
     app = QApplication(sys.argv)
     
