@@ -13,3 +13,48 @@ JohnDoe(127.0.0.1): Co tam?
 Anonymous is known as Adam.
 JohnDoe(127.0.0.1): Ty kurwo
 Adam(127.0.0.1): Spierdalaj
+(Server): Hello 127.0.0.1!Anonymous is known as Adam.
+Adam(127.0.0.1): siema
+Adam(127.0.0.1): co tam
+(Server): Hello 127.0.0.1!Anonymous is known as Adam.
+(Server): Hello 127.0.0.1!
+Anonymous is known as Adam.
+(Server): Hello 127.0.0.1!
+
+Adam has joined the room.
+Adam(127.0.0.1): witam
+Adam has joined the room.
+Adam(127.0.0.1): dzien dobry
+Adam(127.0.0.1): \nickname Ula
+Adam(127.0.0.1): heh
+Adam is known as ula
+.
+ula
+(127.0.0.1): d
+
+Adam has joined the room.
+Adam is known as wuda.
+wuda is known as wuda.
+wuda(127.0.0.1): siema
+Adam has joined the room.
+Adam(127.0.0.1): ddd
+Adam(127.0.0.1): wawa
+Adam(127.0.0.1): dd
+Adam has joined the room.
+Adam has joined the room.
+Adam(127.0.0.1): siema
+Adam has joined the room.
+Adam(127.0.0.1): sewa
+Adam(127.0.0.1): XDD
+Adam has joined the room.
+Adam has joined the room.
+Adam has joined the room.
+Adam has joined the room.
+Adam has joined the room.
+Adam(127.0.0.1): test
+Adam has joined the room.
+Adam has joined the room.
+Adam has joined the room.
+Adam has joined the room.
+Adam has joined the room.
+Adam has joined the room.

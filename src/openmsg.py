@@ -15,21 +15,25 @@ app_version = "0.0.2"
 class Client(QtCore.QObject):
 
     hearSignal = pyqtSignal(str)
+    speakSignal = pyqtSignal()
 
-    def __init__(self,UIBox):
+    def __init__(self,UIBox, ip, port):
         super(Client, self).__init__()
         self.messageToSend=""
         self.logScreen = UIBox
+        self.connected=True
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("Joining: "+rs.settings["ip"]+":"+rs.settings["port"])
+        print("Joining: "+ip+":"+str(port))
         try:
-            self.sock.connect((rs.settings["ip"], int(rs.settings["port"])))
+            self.sock.connect((ip, port))
         except:
-            print("Couldn't join server: "+rs.settings["ip"]+":"+rs.settings["port"])
+            print("Couldn't join server: "+ip+":"+str(port))
+            self.connected=False
             return
 
         self.hearSignal.connect(self.AppendMessage)
+        self.speakSignal.connect(self.ScrollDown)
 
         #Load saved logs of this server
         try:
@@ -42,20 +46,23 @@ class Client(QtCore.QObject):
         self.logScreen.verticalScrollBar().setValue(self.logScreen.verticalScrollBar().maximum())
         file.close()
 
-        tspeak = threading.Thread(target=self.Speak)
-        thear = threading.Thread(target=self.Hear)
+        self.tspeak = threading.Thread(target=self.Speak)
+        self.thear = threading.Thread(target=self.Hear)
 
-        tspeak.daemon = True
-        thear.daemon = True
+        self.tspeak.daemon = True
+        self.thear.daemon = True
 
-        tspeak.start()
-        thear.start() 
+        self.tspeak.start()
+        self.thear.start() 
 
     def AppendMessage(self, text):
         self.logScreen.insertPlainText(text)
 
+    def ScrollDown(self):
+        self.logScreen.verticalScrollBar().setValue(self.logScreen.verticalScrollBar().maximum())
+
     def Speak(self):
-        byt = str.encode("/nickname "+rs.settings["nickname"])
+        byt = str.encode("/join "+rs.settings["nickname"])
         try:
             self.sock.send(byt)
         except:
@@ -68,6 +75,7 @@ class Client(QtCore.QObject):
                 try:
                     self.sock.send(byt)
                     self.messageToSend=""
+                    self.speakSignal.emit()
                 except:
                     print("No connection!")
                     break
@@ -118,7 +126,6 @@ class Server():
             print("(Server): "+address[0]+" connected!")
             
             self.client_list.append([clientsock,"Anonymous"]) 
-            self.Broadcast("(Server): Hello "+address[0]+"!")
             t = threading.Thread(target=self.ClientThread,args=(self.client_list[-1],))
             t.daemon = True
             t.start()
@@ -183,8 +190,12 @@ class ChatWidget(QWidget):
     def DisplayLogs(self, text):
         self.msgBox.setText(text)
 
-    def JoinServer(self):
-        self.client = Client(self.msgBox)
+    def JoinServer(self, ip, port):
+        self.client = Client(self.msgBox, ip, port)
+        if(self.client.connected==True):
+            return True
+        else:
+            return False
         
 
     def SendMsg(self, event):
@@ -215,6 +226,12 @@ class MainWindow(QStackedWidget):
         b3 = QPushButton("Exit", self.introWidget)
         b3.setGeometry(0, 350, 400, 50)
 
+        self.ipline = QLineEdit(self.introWidget)
+        self.portline = QLineEdit(self.introWidget)
+
+        self.ipline.setGeometry(60,144,200,24)
+        self.portline.setGeometry(270,144,70,24)
+
         b1.mouseReleaseEvent = self.JoinServer
         b2.mouseReleaseEvent = self.Host
         b3.mouseReleaseEvent = self.ExitApp
@@ -240,11 +257,13 @@ class MainWindow(QStackedWidget):
         sys.exit()
     
     def JoinServer(self, event):
-        self.chatWidget.JoinServer()
-        self.showChatGUI()
+        if(self.chatWidget.JoinServer(str(self.ipline.text()), int(self.portline.text()))):
+            self.showChatGUI()
         
     def Host(self, event):
         self.server = Server()
+        if(self.chatWidget.JoinServer(rs.settings["ip"], int(rs.settings["port"]))):
+            self.showChatGUI()
     
 
 if __name__=='__main__':
