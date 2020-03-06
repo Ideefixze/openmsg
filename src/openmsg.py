@@ -79,7 +79,6 @@ class Client(QtCore.QObject):
                 except:
                     print("No connection!")
                     break
-
     
     def Hear(self):
         
@@ -209,7 +208,6 @@ class MainWindow(QStackedWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-
         self.setFixedSize(400, 400)
         self.setWindowTitle("OpenMSG "+app_version)
         #self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -229,8 +227,14 @@ class MainWindow(QStackedWidget):
         self.ipline = QLineEdit(self.introWidget)
         self.portline = QLineEdit(self.introWidget)
 
+        self.ipline.setText(rs.settings["ip"])
+        self.portline.setText(rs.settings["port"])
+
         self.ipline.setGeometry(60,144,200,24)
         self.portline.setGeometry(270,144,70,24)
+
+        self.ipline.textEdited.connect(self.Reload)
+        self.portline.textEdited.connect(self.Reload)
 
         b1.mouseReleaseEvent = self.JoinServer
         b2.mouseReleaseEvent = self.Host
@@ -244,6 +248,11 @@ class MainWindow(QStackedWidget):
         #b1.show()
         #b2.show()
         #b3.show()
+
+    def Reload(self,text):
+        rs.settings["ip"]=self.ipline.text()
+        rs.settings["port"]=self.portline.text()
+        rs.reload_settings(r"settings.txt")
 
     def showChatGUI(self):
         self.setCurrentIndex(1)
@@ -259,16 +268,19 @@ class MainWindow(QStackedWidget):
     def JoinServer(self, event):
         if(self.chatWidget.JoinServer(str(self.ipline.text()), int(self.portline.text()))):
             self.showChatGUI()
+            rs.save_settings("settings.txt")
         
     def Host(self, event):
+        rs.reload_settings(r"settings.txt")
+        
         self.server = Server()
-        if(self.chatWidget.JoinServer(rs.settings["ip"], int(rs.settings["port"]))):
+        if(self.chatWidget.JoinServer(str(self.ipline.text()), int(self.portline.text()))):
             self.showChatGUI()
+            
     
 
 if __name__=='__main__':
-    rs.load_settings(r"server.txt")
-    rs.load_settings(r"user.txt")
+    rs.load_settings(r"settings.txt")
     rs.load_stylesheet(r"stylesheet.txt")
     app = QApplication(sys.argv)
     
