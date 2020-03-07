@@ -226,12 +226,18 @@ class MainWindow(QStackedWidget):
 
         self.ipline = QLineEdit(self.introWidget)
         self.portline = QLineEdit(self.introWidget)
+        self.ipline.setGeometry(60,144,200,24)
+        self.portline.setGeometry(270,144,70,24)
+
+        iplabel = QLabel("Server IP", self.introWidget)
+        portlabel = QLabel("Port", self.introWidget)
+        iplabel.setGeometry(60,124,100,24)
+        portlabel.setGeometry(270,124,100,24)
 
         self.ipline.setText(rs.settings["ip"])
         self.portline.setText(rs.settings["port"])
 
-        self.ipline.setGeometry(60,144,200,24)
-        self.portline.setGeometry(270,144,70,24)
+        
 
         self.ipline.textEdited.connect(self.Reload)
         self.portline.textEdited.connect(self.Reload)
