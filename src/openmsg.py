@@ -9,7 +9,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSignal
 
-app_version = "0.0.2"
+app_version = "0.0.3"
 
 #Hears and sends data through socket to the server
 class Client(QtCore.QObject):
@@ -132,6 +132,7 @@ class Server():
     def RemoveClient(self, c):
         if c in self.client_list:
             self.client_list.remove(c)
+            self.Broadcast(c[1]+" has left the room.")
 
     def ClientThread(self, client):
         while(True):
@@ -158,8 +159,9 @@ class Server():
             try:
                 client[0].send(message.encode())
             except:
-                client[0].close()
                 self.RemoveClient(client)
+                client[0].close()
+                
 
     def ParseCommand(self, command, who):
         task = command.split(' ')
@@ -180,6 +182,7 @@ class ChatWidget(QWidget):
         
         self.sendBox = QTextEdit(self)
         self.sendBox.setGeometry(0,350,350,50)
+        self.sendBox.installEventFilter(self)
         sendButton = QPushButton("Send", self)
         sendButton.mouseReleaseEvent = self.SendMsg
         sendButton.setGeometry(350,350,50,50)
@@ -201,6 +204,15 @@ class ChatWidget(QWidget):
         messageText = self.sendBox.toPlainText()
         self.sendBox.setText("")
         self.client.messageToSend=messageText
+
+    def eventFilter(self, obj, event):
+        if(event.type() == QtCore.QEvent.KeyPress and obj is self.sendBox):
+            if(event.key() == QtCore.Qt.Key_Return and self.sendBox.hasFocus()):
+                self.SendMsg(None)
+            else:
+                return super().eventFilter(obj, event)
+        return True
+        
 
 
 class MainWindow(QStackedWidget):
@@ -237,10 +249,17 @@ class MainWindow(QStackedWidget):
         self.ipline.setText(rs.settings["ip"])
         self.portline.setText(rs.settings["port"])
 
-        
+        self.nickline = QLineEdit(self.introWidget)
+        self.nickline.setText(rs.settings["nickname"])
+        self.nickline.setMaxLength(20)
+        self.nickline.setGeometry(60,100,200,24)
+        nicklabel = QLabel("Nickname", self.introWidget)
+        nicklabel.setGeometry(60,80,200,24)
 
+        #connect all QLineEdits to an event
         self.ipline.textEdited.connect(self.Reload)
         self.portline.textEdited.connect(self.Reload)
+        self.nickline.textEdited.connect(self.Reload)
 
         b1.mouseReleaseEvent = self.JoinServer
         b2.mouseReleaseEvent = self.Host
@@ -255,9 +274,13 @@ class MainWindow(QStackedWidget):
         #b2.show()
         #b3.show()
 
+        #Reload is nescessary to reset wrong data from settings.txt
+        self.Reload(None)
+
     def Reload(self,text):
         rs.settings["ip"]=self.ipline.text()
         rs.settings["port"]=self.portline.text()
+        rs.settings["nickname"]=self.nickline.text()
         rs.reload_settings(r"settings.txt")
 
     def showChatGUI(self):
