@@ -1,78 +1,17 @@
+Wawa has joined the room.
+(Server):
+/nickname <text> - Changes your nickname.
 LauraMaksymiuk has joined the room.
-DominikZimny(127.0.0.1): Siema :)
-LauraMaksymiuk(127.0.0.1): Witaj
-DominikZimny(127.0.0.1): Co tam?
-DominikZimny has joined the room.
-LauraMaksymiuk has joined the room.
-DominikZimny(127.0.0.1): Siema :)
-LauraMaksymiuk(127.0.0.1): Witaj
-DominikZimny(127.0.0.1): Co tam?
-LauraMaksymiuk has left the room.
-DominikZimny(127.0.0.1): \nickname DupaWódka
-DominikZimny is known as DupaWódka.
-DupaWódka(127.0.0.1): :)
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk is known as Wuda.
-Wuda(127.0.0.1): Co tam?
-
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk(127.0.0.1): dwawdaw
-
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk(127.0.0.1): dwada
-LauraMaksymiuk(127.0.0.1): 
-/nickname lura
-LauraMaksymiuk is known as lura.
-lura(127.0.0.1): 
-dwadaw
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk is known as Wuda.
-Wuda(127.0.0.1): 
-KKKK
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk(127.0.0.1): dwad
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk(127.0.0.1): 
-
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk(127.0.0.1): dwa
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk has joined the room.
-LauraMaksymiuk(127.0.0.1): Witam
-LauraMaksymiuk(127.0.0.1): Siema
-LauraMaksymiuk(127.0.0.1): dzia³a?
-LauraMaksymiuk(127.0.0.1): dzia³a!
-LauraMaksymiuk(127.0.0.1): Dupa
+Wawa has joined the room.
+Wawa has left the room.
+Wawa has joined the room.
+Wawa(127.0.0.1): j
+Wawa(127.0.0.1): j
+Wawa(127.0.0.1): jj
+Wawa(127.0.0.1): j
+Wawa(127.0.0.1): j
+Wawa(127.0.0.1): jj
+Wawa(127.0.0.1): j
+Wawa(127.0.0.1): jj
+Wawa(127.0.0.1): j
+Wawa is known as Wójcik.

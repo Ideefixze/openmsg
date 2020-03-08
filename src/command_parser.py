@@ -14,8 +14,12 @@ def UserJoined(who, args, server):
     who[1] =  ClearString(args[0])
     server.Broadcast(who[1] +" has joined the room.")
 
+def Help(who, args, server):
+    server.ServerPrivateMessage("\n/nickname <text> - Changes your nickname.", who)
+
 commands["nickname"]=ChangeNickname
 commands["join"]=UserJoined
+commands["help"]=Help
 def Parse(command, who, args, server):
     commands[command](who,args,server)
 

@@ -161,7 +161,14 @@ class Server():
             except:
                 self.RemoveClient(client)
                 client[0].close()
-                
+
+
+    def ServerPrivateMessage(self, message, who):
+        try:
+            who[0].send(("(Server):").encode()+message.encode())
+        except:
+            self.RemoveClient(who)
+            who[0].close()    
 
     def ParseCommand(self, command, who):
         task = command.split(' ')
