@@ -9,7 +9,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSignal
 
-app_version = "0.0.3"
+app_version = "0.0.4"
 
 #Hears and sends data through socket to the server
 class Client(QtCore.QObject):
