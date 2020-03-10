@@ -9,7 +9,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSignal
 
-app_version = "0.0.4"
+app_version = "0.0.5"
 
 #Hears and sends data through socket to the server
 class Client(QtCore.QObject):
@@ -36,15 +36,15 @@ class Client(QtCore.QObject):
         self.speakSignal.connect(self.ScrollDown)
 
         #Load saved logs of this server
-        try:
-            file = open(rs.current_file_dir+"\\server_log.txt",'r+')
-        except:
-            file = open(rs.current_exe_dir+"\\server_log.txt",'r+')
-        text = ''.join(file.readlines())
+        #try:
+        #    file = open(rs.current_file_dir+"\\server_log.txt",'r+')
+        #except:
+        #    file = open(rs.current_exe_dir+"\\server_log.txt",'r+')
+        #text = ''.join(file.readlines())
 
-        self.logScreen.insertPlainText(text)
-        self.logScreen.verticalScrollBar().setValue(self.logScreen.verticalScrollBar().maximum())
-        file.close()
+        #self.logScreen.insertPlainText(text)
+        #self.logScreen.verticalScrollBar().setValue(self.logScreen.verticalScrollBar().maximum())
+        #file.close()
 
         self.tspeak = threading.Thread(target=self.Speak)
         self.thear = threading.Thread(target=self.Hear)
@@ -172,13 +172,12 @@ class Server():
 
     def ParseCommand(self, command, who):
         task = command.split(' ')
-        print(task)
-        print(task[1:])
+        #print(task)
+        #print(task[1:])
         cp.Parse(task[0],who,task[1:],self)
                 
 
                  
-
 class ChatWidget(QWidget):
 
     def __init__(self, parent=None):

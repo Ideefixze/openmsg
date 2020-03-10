@@ -3,6 +3,7 @@ import sys
 commands = dict()
 
 def ClearString(nick):
+    nick = nick[0:20]
     return nick.rstrip()
 
 def ChangeNickname(who, args,server):

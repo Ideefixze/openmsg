@@ -30,7 +30,7 @@ def load_settings(filename):
 
     settings_file.close()
 
-    print("Loaded settings from " + filename)
+    #print("Loaded settings from " + filename)
     
     #for i in settings:
         #print (i+" = "+settings[i])
@@ -54,7 +54,7 @@ def save_settings(filename):
         settings_file = open(current_exe_dir+"\\"+filename,'w')
 
     for i in settings:
-        print(i+"="+settings[i]+"\n")
+        #print(i+"="+settings[i]+"\n")
         settings_file.write(i+"="+settings[i]+"\n")
 
     settings_file.close()
