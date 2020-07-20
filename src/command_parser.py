@@ -25,10 +25,5 @@ def Parse(command, who, args, server):
     commands[command](who,args,server)
 
 
-#user1 = ["data", "Juzef"]
-#Parse("nickname",user1,"DUPA","HEHE")
-#print(user1)
-
-
 
 
