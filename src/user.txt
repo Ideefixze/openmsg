@@ -1,3 +1,0 @@
-nickname=Adam
-default_ip=127.0.0.1
-default_port=3999
