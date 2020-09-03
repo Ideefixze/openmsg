@@ -72,8 +72,6 @@ class Client(QtCore.QObject):
                     break
     
     def Hear(self):
-        
-        #self.hearSignal.emit(text)
 
         #Open by file or exe in 'utf-8' encoding so emojis can be used
         try:
@@ -267,10 +265,6 @@ class MainWindow(QStackedWidget):
         
         self.addWidget(self.introWidget)
         self.addWidget(self.chatWidget)
-
-        #b1.show()
-        #b2.show()
-        #b3.show()
 
         #Reload is nescessary to reset wrong data from settings.txt
         self.Reload(None)
